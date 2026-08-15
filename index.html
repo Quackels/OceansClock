@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Clock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1f2937;
+            cursor: pointer;
+            margin-top: -8px;
+        }
+        
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #d1d5db;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1f2937;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 4px;
+            background: #d1d5db;
+            border-radius: 2px;
+        }
+        @keyframes float {
+        0%, 100% { transform: translateY(0) translateX(0); }
+        25% { transform: translateY(-10px) translateX(5px); }
+        50% { transform: translateY(-5px) translateX(-5px); }
+        75% { transform: translateY(-15px) translateX(3px); }
+        }
+
+        /* Gray rounded containers for text content */
+            #impact .space-y-6,
+            #action .grid,
+            #about .mb-16 {
+                background: #f9fafb;
+                padding: 2rem;
+                border-radius: 12px;
+                border: 1px solid #e5e7eb;
+            }
+
+            /* Individual text blocks in Take Action */
+            #action .border-t {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                margin-bottom: 1rem;
+            }
+
+            /* Organizations section */
+            #action .grid.md\:grid-cols-2.gap-8 > div {
+                background: #f9fafb;
+                padding: 1.5rem;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+            }
+        /* Round all edges */
+        .page div,
+        .page button,
+        .page input,
+        nav,
+        footer,
+        #mapContainer,
+        #storySceneContainer {
+            border-radius: 8px;
+        }
+
+        /* Keep some elements more rounded */
+        button {
+            border-radius: 6px !important;
+        }
+
+        /* Round the nav but keep it subtle */
+        nav {
+            border-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+
+        /* Make cards/containers nicely rounded */
+        .border {
+            border-radius: 12px;
+        }
+
+        /* Keep SVG map container rounded */
+        #mapContainer {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+
+            /* pretty background map */
+            background-image: url('Ocean_map.png');  /* <-- your file name */
+            background-size: cover;       /* fills the box */
+            background-position: center;  /* stays centered */
+            background-repeat: no-repeat;
+        }
+
+        #mapContainer::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.08); /* tiny wash over the map */
+            pointer-events: none;
+        }
+
+
+
+    #storySceneContainer {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+</style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 text-gray-800 p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2 text-xl font-light cursor-pointer" onclick="showPage('home')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
+                </svg>
+                <span>Ocean Clock</span>
+            </div>
+            <div class="flex gap-8">
+                <button onclick="showPage('home')" class="nav-link text-sm tracking-wide hover:text-blue-600 transition-colors text-gray-600">Home</button>
+                <button onclick="showPage('impact')" class="nav-link text-sm tracking-wide hover:text-blue-600 transition-colors text-gray-600">Impact</button>
+                <button onclick="showPage('action')" class="nav-link text-sm tracking-wide hover:text-blue-600 transition-colors text-gray-600">Take Action</button>
+                <button onclick="showPage('about')" class="nav-link text-sm tracking-wide hover:text-blue-600 transition-colors text-gray-600">About</button>
+                <button onclick="showPage('story')" class="bg-blue-600 text-white px-10 py-4 text-sm tracking-wide hover:bg-blue-700 transition-colors">MEET LUNA</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page">
+        <div class="min-h-screen bg-white">
+            <div class="container mx-auto px-4 py-32 max-w-4xl">
+                <div class="text-center mb-24">
+                    <h1 class="text-7xl font-light text-gray-900 mb-8 tracking-tight">
+                        Ocean Clock
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-16 font-light leading-relaxed">
+                        Journey through time. Witness the transformation of our oceans<br>from 1950 to 2040.
+                    </p>
+                    <button onclick="showPage('timemachine')" class="bg-blue-600 text-white px-10 py-4 text-sm tracking-wide hover:bg-blue-700 transition-colors">
+                        EXPLORE
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-16 text-center py-16 border-t border-gray-200">
+                    <div>
+                        <div class="text-4xl font-light text-gray-900 mb-2">8-12M</div>
+                        <p class="text-sm text-gray-600 tracking-wide">TONS ANNUALLY</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-light text-gray-900 mb-2">3x</div>
+                        <p class="text-sm text-gray-600 tracking-wide">BY 2040</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-light text-gray-900 mb-2">75-199M</div>
+                        <p class="text-sm text-gray-600 tracking-wide">TONS IN OCEAN</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Machine Page -->
+    <div id="timemachine" class="page hidden">
+        <div class="min-h-screen bg-white py-20">
+            <div class="container mx-auto px-4 max-w-6xl">
+                <h1 class="text-5xl font-light text-gray-900 text-center mb-20 tracking-tight">
+                    Time Machine
+                </h1>
+                
+                <div class="mb-16">
+                    <div class="flex justify-between items-center mb-12">
+                        <span id="yearDisplay" class="text-6xl font-light text-gray-900">1995</span>
+                        <div class="flex gap-3">
+                            <button id="currentBtn" onclick="setScenario('current')" class="px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white">
+                                CURRENT PATH
+                            </button>
+                            <button id="actionBtn" onclick="setScenario('action')" class="px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400">
+                                IF WE ACT
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <input type="range" min="1950" max="2040" value="1995" id="yearSlider" class="w-full h-1 bg-gray-300 cursor-pointer" oninput="updateYear(this.value)">
+                    <div class="flex justify-between text-xs text-gray-500 mt-3 tracking-wider">
+                        <span>1950</span>
+                        <span>1995</span>
+                        <span>2040</span>
+                    </div>
+                </div>
+
+                <!-- World Map Visualization -->
+                <div class="relative bg-blue-50 border border-gray-200 h-[500px] mb-8 overflow-hidden" id="mapContainer">
+                    <!-- Map will be rendered here by JavaScript -->
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-4 gap-8 text-center">
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="plasticAmount" class="text-4xl font-light text-gray-900 mb-2">200M</div>
+                        <p class="text-xs text-gray-600 tracking-wider">TONS OF PLASTIC</p>
+                    </div>
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="concentration" class="text-4xl font-light text-gray-900 mb-2">82%</div>
+                        <p class="text-xs text-gray-600 tracking-wider">AVG CONCENTRATION</p>
+                    </div>
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="criticalZones" class="text-4xl font-light text-gray-900 mb-2">4</div>
+                        <p class="text-xs text-gray-600 tracking-wider">CRITICAL ZONES</p>
+                    </div>
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="affectedCountries" class="text-4xl font-light text-gray-900 mb-2">148</div>
+                        <p class="text-xs text-gray-600 tracking-wider">AFFECTED COUNTRIES</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END of Time Machine Page -->
+    <!-- Story Page -->
+    <div id="story" class="page hidden">
+        <div class="min-h-screen bg-white py-20">
+            <div class="container mx-auto px-4 max-w-5xl">
+                <h1 class="text-5xl font-light text-gray-900 text-center mb-8 tracking-tight">Luna's Journey</h1>
+                <p class="text-center text-gray-500 text-sm mb-20 tracking-wide">A sea turtle's life through time</p>
+                
+                <div class="mb-16">
+                    <div class="flex justify-center mb-12">
+                        <span id="storyYear" class="text-6xl font-light text-gray-900">1990</span>
+                    </div>
+                    
+                    <input type="range" min="1990" max="2040" value="1990" step="10" id="storySlider" 
+                        class="w-full h-1 bg-gray-300 cursor-pointer" oninput="updateStory(this.value)">
+                    <div class="flex justify-between text-xs text-gray-500 mt-3 tracking-wider">
+                        <span>1990</span>
+                        <span>2000</span>
+                        <span>2010</span>
+                        <span>2020</span>
+                        <span>2030</span>
+                        <span>2040</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-3 mb-16">
+                    <button id="storyCurrentBtn" onclick="setStoryScenario('current')" 
+                            class="px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white">
+                        CURRENT PATH
+                    </button>
+                    <button id="storyActionBtn" onclick="setStoryScenario('action')" 
+                            class="px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400">
+                        IF WE ACT
+                    </button>
+                </div>
+
+                <div id="storySceneContainer" class="relative bg-gradient-to-b from-blue-50 to-blue-100 border border-gray-200 h-80 mb-12 overflow-hidden flex items-center justify-center transition-all duration-1000">
+                    <div class="relative">
+                        <div id="turtleContainer" class="transition-all duration-1000">
+                            <svg width="120" height="120" viewBox="0 0 120 120" id="turtleSvg" class="transition-all duration-1000">
+                                <ellipse cx="60" cy="70" rx="35" ry="25" fill="#4A7C59" opacity="0.9"/>
+                                <ellipse cx="60" cy="65" rx="30" ry="22" fill="#6B8E23" opacity="0.8"/>
+                                <circle cx="55" cy="60" r="6" fill="#556B2F" opacity="0.6"/>
+                                <circle cx="65" cy="60" r="6" fill="#556B2F" opacity="0.6"/>
+                                <circle cx="60" cy="70" r="6" fill="#556B2F" opacity="0.6"/>
+                                <ellipse cx="60" cy="45" rx="12" ry="10" fill="#4A7C59"/>
+                                <circle cx="57" cy="43" r="2" fill="#1a1a1a"/>
+                                <circle cx="63" cy="43" r="2" fill="#1a1a1a"/>
+                                <ellipse cx="35" cy="75" rx="15" ry="8" fill="#3D6B4D" transform="rotate(-30 35 75)"/>
+                                <ellipse cx="85" cy="75" rx="15" ry="8" fill="#3D6B4D" transform="rotate(30 85 75)"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="plasticParticles" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 p-12 mb-8">
+                    <p id="storyText" class="text-lg leading-relaxed text-gray-700 text-center font-light min-h-24 transition-all duration-500">
+                        Luna hatches on a pristine beach. The ocean stretches before her, clear and inviting.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-8 text-center">
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="lunaAge" class="text-4xl font-light text-gray-900 mb-2">Hatchling</div>
+                        <p class="text-xs text-gray-600 tracking-wider">LIFE STAGE</p>
+                    </div>
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="oceanHealth" class="text-4xl font-light text-gray-900 mb-2">85%</div>
+                        <p class="text-xs text-gray-600 tracking-wider">OCEAN HEALTH</p>
+                    </div>
+                    <div class="py-8 border-t border-gray-200">
+                        <div id="survivalRate" class="text-4xl font-light text-gray-900 mb-2">Good</div>
+                        <p class="text-xs text-gray-600 tracking-wider">SURVIVAL OUTLOOK</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Impact Page -->
+    <div id="impact" class="page hidden">
+        <div class="min-h-screen bg-white py-20">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <h1 class="text-5xl font-light text-gray-900 text-center mb-20 tracking-tight">Impact</h1>
+                
+                <div class="grid md:grid-cols-2 gap-20 mb-24">
+                    <div>
+                        <h2 class="text-2xl font-light text-gray-900 mb-8 tracking-tight">The Crisis</h2>
+                        <div class="space-y-6 text-gray-600 leading-relaxed">
+                            <p>8-12 million tons of plastic enter oceans annually</p>
+                            <p>80% of marine debris is plastic</p>
+                            <p>100,000+ marine animals die yearly</p>
+                            <p>450 years for a bottle to decompose</p>
+                            <p>5g of microplastics consumed weekly</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-2xl font-light text-gray-900 mb-8 tracking-tight">If We Act</h2>
+                        <div class="space-y-6 text-gray-600 leading-relaxed">
+                            <p>Reduce ocean plastic by 80% by 2040</p>
+                            <p>Restore ecosystems in decades</p>
+                            <p>Save $70 billion in cleanup costs</p>
+                            <p>Protect millions of species</p>
+                            <p>Sustainable future for generations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-12 text-center">
+                    <p class="text-xl font-light text-gray-900 mb-4">The time to act is now.</p>
+                    <p class="text-gray-600 leading-relaxed max-w-2xl mx-auto">
+                        Every piece of plastic we prevent from entering the ocean makes a difference.
+                        The future isn't written yet.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Take Action Page -->
+    <div id="action" class="page hidden">
+        <div class="min-h-screen bg-white py-20">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <h1 class="text-5xl font-light text-gray-900 text-center mb-12 tracking-tight">Take Action</h1>
+                <p class="text-center text-gray-600 mb-12 leading-relaxed">
+                    Small actions create big waves.
+                </p>
+                <!-- AI-Powered Calculator -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 p-8 mb-20 relative overflow-hidden">
+                        <div class="absolute top-4 right-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+                            AI-POWERED
+                        </div>
+                        
+                        <h2 class="text-3xl font-light text-gray-900 mb-4 tracking-tight">Calculate Your Personal Impact</h2>
+                        <p class="text-gray-600 mb-8">Tell us about your daily plastic usage and get AI-powered personalized recommendations.</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Plastic Bottles (per day)</label>
+                                <input type="number" id="bottles" min="0" value="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Plastic Bags (per day)</label>
+                                <input type="number" id="bags" min="0" value="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Takeout Containers (per week)</label>
+                                <input type="number" id="takeout" min="0" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Plastic Straws (per day)</label>
+                                <input type="number" id="straws" min="0" value="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <button onclick="calculateImpact()" id="calculateBtn" class="w-full bg-blue-600 text-white px-8 py-4 text-sm tracking-wide hover:bg-blue-700 transition-colors font-medium">
+                            ANALYZE MY IMPACT
+                        </button>
+                        
+                        <div id="loadingMessage" class="hidden mt-6 text-center text-gray-600">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                            <p>AI is analyzing your plastic usage...</p>
+                        </div>
+                        
+                        <div id="resultsSection" class="hidden mt-8 bg-white p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-2xl font-light text-gray-900 mb-4">Your Impact Analysis</h3>
+                            <div id="resultsContent" class="prose prose-sm max-w-none text-gray-700"></div>
+                        </div>
+                    </div>
+                
+                <div class="grid md:grid-cols-2 gap-x-20 gap-y-12 mb-24">
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Refuse Single-Use</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Say no to plastic bags, straws, disposables</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Choose Reusables</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Use reusable bottles, bags, containers</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Support Cleanups</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Join or donate to cleanup initiatives</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Spread Awareness</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Share information about the crisis</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Recycle Properly</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Learn what can be recycled locally</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-6">
+                        <h3 class="text-lg font-light text-gray-900 mb-2">Support Policy</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">Advocate for plastic reduction laws</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-12">
+                    <h2 class="text-2xl font-light text-gray-900 mb-8 text-center tracking-tight">Organizations</h2>
+                    <div class="grid md:grid-cols-2 gap-8 text-sm text-gray-600">
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-2">Ocean Conservancy</h3>
+                            <p>Leading ocean cleanup initiatives worldwide</p>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-2">The Ocean Cleanup</h3>
+                            <p>Developing technology to remove ocean plastic</p>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-2">Surfrider Foundation</h3>
+                            <p>Protecting oceans through activism</p>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-2">Plastic Pollution Coalition</h3>
+                            <p>Working toward plastic-free world</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about" class="page hidden">
+        <div class="min-h-screen bg-white py-20">
+            <div class="container mx-auto px-4 max-w-3xl">
+                <h1 class="text-5xl font-light text-gray-900 text-center mb-20 tracking-tight">About</h1>
+                
+                <div class="mb-16">
+                    <h2 class="text-2xl font-light text-gray-900 mb-6 tracking-tight">Mission</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        The Ocean Clock makes the abstract threat of ocean plastic pollution 
+                        tangible and urgent. By visualizing past, present, and potential futures, 
+                        we inspire action and change.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        Built for the Hackabyte Fall Hackathon to address the growing crisis of ocean waste 
+                        through an engaging, interactive experience.
+                    </p>
+                </div>
+
+                <div class="mb-16 border-t border-gray-200 pt-12">
+                    <h2 class="text-2xl font-light text-gray-900 mb-8 tracking-tight">Learning Journey</h2>
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-3">Roadblock: Data Visualization</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Creating an intuitive time-slider representing decades of pollution data was challenging. 
+                                We experimented with multiple approaches before finding the balance between accuracy and engagement.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-3">New Skill: Interactive Visualizations</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Learned to create smooth, engaging animations and heatmap overlays 
+                                to make the ocean visualization feel responsive and informative.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900 mb-3">Future: ML Integration</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Planning to integrate machine learning for analyzing user-uploaded beach photos, 
+                                providing personalized pollution assessments connecting individual observations to the global crisis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center border-t border-gray-200 pt-12">
+                    <h2 class="text-xl font-light text-gray-900 mb-6 tracking-tight">Built With</h2>
+                    <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-600 tracking-wider">
+                        <span>HTML</span>
+                        <span>•</span>
+                        <span>CSS</span>
+                        <span>•</span>
+                        <span>JAVASCRIPT</span>
+                        <span>•</span>
+                        <span>TAILWIND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8 text-center">
+        <p class="text-xs text-gray-600 tracking-wider">OCEAN CLOCK © 2025</p>
+        <p class="text-xs text-gray-500 mt-2">Built for Hackabyte Fall Hackathon</p>
+    </footer>
+
+    <script>
+        // Page Navigation
+        let currentPage = 'home';
+        
+     function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById(page).classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('text-blue-600', 'font-medium');
+        link.classList.add('text-gray-600');
+    });
+    
+    currentPage = page;
+    
+    if (page === 'timemachine') {
+        renderMap();
+    } else if (page === 'story') {
+        renderStory();
+    }
+}
+    
+        // Time Machine Logic
+        let year = 2025;
+        let scenario = 'current';
+        
+          const oceanRegions = [
+            // Pacific Ocean regions (left and right sides of map)
+            { name: 'North Pacific Ocean (West)', x: 85, y: 30, baseIntensity: 0.9 },
+            { name: 'South Pacific Ocean',        x: 35, y: 75, baseIntensity: 0.85 },
+
+            // Atlantic Ocean regions (center-left)
+            { name: 'North Atlantic Ocean',    x: 29, y: 30, baseIntensity: 0.85 },
+            { name: 'South Atlantic Ocean',    x: 10, y: 65, baseIntensity: 0.75 },
+
+            // Indian Ocean (center-right)
+            { name: 'Indian Ocean',            x: 65, y: 60, baseIntensity: 0.85 },
+
+            // Polar regions
+            { name: 'Arctic Ocean',            x: 75, y: 90, baseIntensity: 0.6 },
+            { name: 'Southern Ocean',          x: 50, y: 88, baseIntensity: 0.7 },
+        ];
+
+
+        
+        function getOceanState() {
+            const startYear = 1950;
+            const endYear = 2040;
+            const actionStartYear = 2025;  // year we start improving things
+
+            const yearProgress = (year - startYear) / (endYear - startYear); // 0 → 1 over full timeline
+
+            // Max plastic if we don't act (used for scaling)
+            const maxPlasticCurrent = 300; // 300M tons at 2040 on current path
+
+            if (scenario === 'current') {
+                // Straight “getting worse” story
+                const plasticAmount = Math.floor(yearProgress * maxPlasticCurrent);
+                const concentration = yearProgress * 100;
+                return { plasticAmount, concentration };
+            } else {
+                // "IF WE ACT" scenario
+                const actionEndYear = endYear;
+
+                // Value at the moment we start acting (use the current-path value)
+                const startProgress = (actionStartYear - startYear) / (endYear - startYear);
+                const startPlastic = Math.floor(startProgress * maxPlasticCurrent); // ~250M
+                const startConcentration = startProgress * 100;                    // ~80–85%
+
+                // Target by 2040 (80% reduction from that peak)
+                const targetPlastic = Math.round(startPlastic * 0.2);     // e.g. ~50M
+                const targetConcentration = 20;                           // 20% concentration floor
+
+                let plasticAmount, concentration;
+
+                if (year <= actionStartYear) {
+                    // Before we act: same as current path
+                    plasticAmount = Math.floor(yearProgress * maxPlasticCurrent);
+                    concentration = yearProgress * 100;
+                } else {
+                    // After we start acting: linearly improve from start → target
+                    const t = (year - actionStartYear) / (actionEndYear - actionStartYear); // 0 → 1
+
+                    plasticAmount = Math.round(
+                        startPlastic - t * (startPlastic - targetPlastic)
+                    );
+
+                    concentration = Math.round(
+                        startConcentration - t * (startConcentration - targetConcentration)
+                    );
+                }
+
+                return { plasticAmount, concentration };
+            }
+        }
+
+        
+        function getRegionColor(baseIntensity) {
+            const state = getOceanState();
+            const intensity = (state.concentration / 100) * baseIntensity;
+            
+            if (intensity < 0.3) return { bg: 'rgb(191, 219, 254)', text: 'Low' };
+            if (intensity < 0.5) return { bg: 'rgb(253, 224, 71)', text: 'Medium' };
+            if (intensity < 0.7) return { bg: 'rgb(251, 146, 60)', text: 'High' };
+            return { bg: 'rgb(239, 68, 68)', text: 'Critical' };
+        }
+        
+        function renderMap() {
+    const container = document.getElementById('mapContainer');
+    const state = getOceanState();
+
+    // No base SVG map – the image is the background now
+    let html = '';
+
+    // Pollution hotspots (unchanged)
+    oceanRegions.forEach(region => {
+        const colors = getRegionColor(region.baseIntensity);
+        const size = 120 + (state.concentration / 100) * 150;
+        
+        html += `
+            <div class="absolute transition-all duration-700 ease-in-out" 
+                 style="left: ${region.x}%; top: ${region.y}%; transform: translate(-50%, -50%);">
+                <div class="rounded-full opacity-30 blur-3xl transition-all duration-700" 
+                     style="width: ${size}px; height: ${size}px; background-color: ${colors.bg};"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full cursor-pointer hover:scale-150 transition-transform shadow-lg border-2"
+                     style="background-color: ${colors.bg};"
+                     title="${region.name} - ${colors.text}"></div>
+            </div>
+        `;
+    });
+
+    // Legend (unchanged)
+    html += `
+        <div class="absolute bottom-4 right-4 bg-white border border-gray-300 px-4 py-3 text-xs">
+            <div class="font-medium text-gray-900 mb-2 tracking-wide">CONCENTRATION</div>
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-blue-200 rounded-full"></div>
+                    <span class="text-gray-600">Low</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-yellow-300 rounded-full"></div>
+                    <span class="text-gray-600">Medium</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-orange-400 rounded-full"></div>
+                    <span class="text-gray-600">High</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-gray-600">Critical</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+    updateStats();
+}
+
+        
+        function updateYear(value) {
+            year = parseInt(value);
+            document.getElementById('yearDisplay').textContent = year;
+            renderMap();
+        }
+        
+        function setScenario(newScenario) {
+            scenario = newScenario;
+            
+            const currentBtn = document.getElementById('currentBtn');
+            const actionBtn = document.getElementById('actionBtn');
+            
+            if (scenario === 'current') {
+                currentBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white';
+                actionBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400';
+            } else {
+                currentBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400';
+                actionBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white';
+            }
+            
+            renderMap();
+        }
+        
+        function updateStats() {
+            const state = getOceanState();
+            
+            document.getElementById('plasticAmount').textContent = state.plasticAmount + 'M';
+            document.getElementById('concentration').textContent = Math.round(state.concentration) + '%';
+            
+            const criticalCount = oceanRegions.filter(r => {
+                const colors = getRegionColor(r.baseIntensity);
+                return colors.text === 'Critical';
+            }).length;
+            document.getElementById('criticalZones').textContent = criticalCount;
+            
+            const affectedCountries = year > 2025 && scenario === 'action' 
+                ? '+' + Math.round((2040 - year) * 2)
+                : Math.round((state.concentration / 100) * 180);
+            document.getElementById('affectedCountries').textContent = affectedCountries;
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            renderMap();
+        });
+        // Story Mode Variables
+let storyYear = 1990;
+let storyScenario = 'current';
+
+const storyData = {
+    current: {
+        1990: { stage: 'Hatchling', health: 85, survival: 'Good', text: 'Luna hatches on a pristine beach. The ocean stretches before her, clear and inviting. She takes her first swim into relatively clean waters, joining thousands of other hatchlings on their journey.', plastic: 5 },
+        2000: { stage: 'Juvenile', health: 75, survival: 'Fair', text: 'At 10 years old, Luna has grown stronger. But she encounters her first plastic bag, mistaking it for a jellyfish. She learns to be more cautious, though the ocean is becoming more cluttered.', plastic: 15 },
+        2010: { stage: 'Adult', health: 60, survival: 'Moderate', text: 'Luna is now a mature adult, but her nesting beach is littered with debris. She struggles to find clean sand. Many of her hatchlings won\'t survive their journey to the sea, tangled in plastic.', plastic: 30 },
+        2020: { stage: 'Elder', health: 45, survival: 'Poor', text: 'At 30, Luna has survived longer than most. Her shell bears scars from fishing nets. The waters she once knew are thick with microplastics. Finding food without plastic is nearly impossible.', plastic: 50 },
+        2030: { stage: 'Struggling', health: 30, survival: 'Critical', text: 'Luna\'s species is in sharp decline. The ocean is suffocating. Every breath, every meal contains plastic. The beaches where she was born are disappearing under waste.', plastic: 75 },
+        2040: { stage: 'Endangered', health: 15, survival: 'Dire', text: 'Few of Luna\'s kind remain. The ocean has become hostile to life. What was once a thriving ecosystem is now a graveyard of plastic. Her story may be ending.', plastic: 95 }
+    },
+    action: {
+        1990: { stage: 'Hatchling', health: 85, survival: 'Good', text: 'Luna hatches on a pristine beach. The ocean stretches before her, clear and inviting. She takes her first swim into relatively clean waters, joining thousands of other hatchlings on their journey.', plastic: 5 },
+        2000: { stage: 'Juvenile', health: 75, survival: 'Fair', text: 'At 10 years old, Luna has grown stronger. But she encounters her first plastic bag, mistaking it for a jellyfish. She learns to be more cautious, though the ocean is becoming more cluttered.', plastic: 15 },
+        2010: { stage: 'Adult', health: 60, survival: 'Moderate', text: 'Luna is now a mature adult, but her nesting beach is littered with debris. She struggles to find clean sand. Many of her hatchlings won\'t survive their journey to the sea, tangled in plastic.', plastic: 30 },
+        2020: { stage: 'Elder', health: 45, survival: 'Fair', text: 'At 30, Luna notices something changing. Humans have begun cleaning the beaches. Fewer nets entangle her fins. The water, while still polluted, seems to be improving.', plastic: 50 },
+        2030: { stage: 'Thriving', health: 65, survival: 'Good', text: 'The ocean is healing. Luna swims through clearer waters than she has in decades. Her grandchildren have a fighting chance. Beach cleanups are regular. Plastic production has dropped dramatically.', plastic: 30 },
+        2040: { stage: 'Hope', health: 80, survival: 'Excellent', text: 'Luna is 50 years old and thriving. Her nesting beach is protected and clean. Her descendants fill the ocean. Humanity chose to act, and the ocean is recovering. There is hope.', plastic: 15 }
+    }
+};
+
+function updateStory(year) {
+    storyYear = parseInt(year);
+    document.getElementById('storyYear').textContent = storyYear;
+    renderStory();
+}
+
+function setStoryScenario(scenario) {
+    storyScenario = scenario;
+    const currentBtn = document.getElementById('storyCurrentBtn');
+    const actionBtn = document.getElementById('storyActionBtn');
+    
+    if (scenario === 'current') {
+        currentBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white';
+        actionBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400';
+    } else {
+        currentBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-white text-gray-600 border border-gray-300 hover:border-gray-400';
+        actionBtn.className = 'px-8 py-3 text-sm tracking-wide transition-all bg-gray-900 text-white';
+    }
+    renderStory();
+}
+
+function renderStory() {
+    const data = storyData[storyScenario][storyYear];
+    
+    document.getElementById('storyText').textContent = data.text;
+    document.getElementById('lunaAge').textContent = data.stage;
+    document.getElementById('oceanHealth').textContent = data.health + '%';
+    document.getElementById('survivalRate').textContent = data.survival;
+    
+    const turtle = document.getElementById('turtleSvg');
+    const opacity = 0.3 + (data.health / 100) * 0.7;
+    turtle.style.opacity = opacity;
+
+    // Calculate size based on life stage
+    let scale = 1.0;
+    if (data.stage === 'Hatchling') scale = 0.6;
+    else if (data.stage === 'Juvenile') scale = 0.8;
+    else if (data.stage === 'Adult' || data.stage === 'Elder') scale = 1.0;
+    else if (data.stage === 'Struggling' || data.stage === 'Thriving') scale = 1.1;
+    else if (data.stage === 'Endangered' || data.stage === 'Hope') scale = 1.2;
+
+    const tilt = storyScenario === 'current' ? (100 - data.health) / 5 : 0;
+    document.getElementById('turtleContainer').style.transform = `rotate(${tilt}deg) scale(${scale})`;
+        
+    const particlesContainer = document.getElementById('plasticParticles');
+    const particleCount = Math.floor(data.plastic / 5);
+    let particlesHtml = '';
+    
+    for (let i = 0; i < particleCount; i++) {
+        const size = 3 + Math.random() * 8;
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const delay = Math.random() * 3;
+        const duration = 4 + Math.random() * 4;
+        
+        particlesHtml += `<div class="absolute bg-gray-400 rounded-sm opacity-40" 
+             style="width: ${size}px; height: ${size}px; left: ${left}%; top: ${top}%;
+                    animation: float ${duration}s ease-in-out ${delay}s infinite;"></div>`;
+    }
+    particlesContainer.innerHTML = particlesHtml;
+    
+    const scene = document.getElementById('storySceneContainer');
+    if (data.health > 70) {
+        scene.className = 'relative bg-gradient-to-b from-blue-50 to-blue-100 border border-gray-200 h-80 mb-12 overflow-hidden flex items-center justify-center transition-all duration-1000';
+    } else if (data.health > 40) {
+        scene.className = 'relative bg-gradient-to-b from-blue-100 to-blue-200 border border-gray-200 h-80 mb-12 overflow-hidden flex items-center justify-center transition-all duration-1000';
+    } else {
+        scene.className = 'relative bg-gradient-to-b from-gray-200 to-gray-300 border border-gray-200 h-80 mb-12 overflow-hidden flex items-center justify-center transition-all duration-1000';
+    }
+}
+async function calculateImpact() {
+    const bottles = parseInt(document.getElementById('bottles').value) || 0;
+    const bags = parseInt(document.getElementById('bags').value) || 0;
+    const takeout = parseInt(document.getElementById('takeout').value) || 0;
+    const straws = parseInt(document.getElementById('straws').value) || 0;
+    
+    document.getElementById('loadingMessage').classList.remove('hidden');
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('calculateBtn').disabled = true;
+    document.getElementById('calculateBtn').textContent = 'ANALYZING...';
+    
+    const totalWeekly = (bottles * 7) + (bags * 7) + takeout + (straws * 7);
+    const totalYearly = (bottles * 365) + (bags * 365) + (takeout * 52) + (straws * 365);
+    const yearlyKg = (bottles * 365 * 0.03) + (bags * 365 * 0.005) + (takeout * 52 * 0.05) + (straws * 365 * 0.003);
+    
+    setTimeout(() => {
+        let analysis = '<h4 class="font-semibold text-lg mb-3">📊 Your Plastic Consumption</h4>';
+        analysis += '<p class="mb-3"><strong>Weekly:</strong> ' + totalWeekly + ' items<br>';
+        analysis += '<strong>Monthly:</strong> ' + Math.round(totalWeekly * 4.3) + ' items<br>';
+        analysis += '<strong>Yearly:</strong> ' + totalYearly + ' items (approximately ' + yearlyKg.toFixed(1) + ' kg)</p>';
+        
+        analysis += '<h4 class="font-semibold text-lg mb-3 mt-4">🌊 Environmental Impact</h4>';
+        analysis += '<p class="mb-3">Your yearly plastic usage of ' + yearlyKg.toFixed(1) + ' kg is equivalent to the weight of approximately ' + Math.floor(yearlyKg/0.5) + ' sea turtles. If this plastic reaches the ocean, it could persist for hundreds of years.</p>';
+        
+        analysis += '<h4 class="font-semibold text-lg mb-3 mt-4">💡 Personalized Recommendations</h4>';
+        analysis += '<ul class="list-disc pl-5 space-y-2">';
+        
+        if (bottles > 1) {
+            analysis += '<li><strong>Switch to a reusable water bottle</strong> - You could eliminate ' + (bottles * 365) + ' plastic bottles per year!</li>';
+        }
+        if (bags > 2) {
+            analysis += '<li><strong>Carry reusable shopping bags</strong> - This would save ' + (bags * 365) + ' plastic bags annually.</li>';
+        }
+        if (takeout > 3) {
+            analysis += '<li><strong>Choose restaurants with eco-friendly packaging</strong> or bring your own containers.</li>';
+        }
+        if (straws > 0) {
+            analysis += '<li><strong>Say no to plastic straws</strong> - or carry a reusable one. Small change, big impact!</li>';
+        }
+        
+        analysis += '</ul>';
+        analysis += '<p class="mt-4 text-green-700 font-medium">🌟 By making these changes, you could reduce your plastic consumption by up to 80% and prevent ' + (yearlyKg * 0.8).toFixed(1) + ' kg of plastic from potentially entering our oceans each year. Every action counts!</p>';
+        
+        document.getElementById('loadingMessage').classList.add('hidden');
+        document.getElementById('resultsSection').classList.remove('hidden');
+        document.getElementById('resultsContent').innerHTML = analysis;
+        document.getElementById('calculateBtn').disabled = false;
+        document.getElementById('calculateBtn').textContent = 'ANALYZE MY IMPACT';
+    }, 1500);
+}
+    </script>
+</body>
+</html>
+    </script>
